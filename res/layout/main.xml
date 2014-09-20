@@ -3,6 +3,18 @@
               android:orientation="vertical"
               android:layout_width="fill_parent"
               android:layout_height="fill_parent"
-        >
+              android:weightSum="1">
+
+    <Button
+        android:layout_width="fill_parent"
+        android:layout_height="43dp"
+        android:text="New Graffiti!"
+        android:id="@+id/addG"
+        android:layout_weight="0.08"
+        android:textStyle="bold|italic"
+        android:textSize="30dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_margin="10dp"
+        android:onClick="takePicture"/>
 </LinearLayout>
 
