@@ -38,5 +38,21 @@
         android:layout_weight="0.08"
         android:gravity="center"
         android:visibility="visible"/>
+
+    <Button
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:text="VIEW A RANDOM GRAFFITI WORK OF ART"
+        android:id="@+id/randGraffiti"
+        android:layout_gravity="center_horizontal"
+        android:layout_weight="0.47"
+        android:textSize="25dp"
+        android:onClick="randomizer"/>
+
+    <ScrollView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/scrollView"/>
+
 </LinearLayout>
 

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:weightSum="1">
+
+    <TextView
+        android:layout_width="193dp"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:id="@+id/gName"
+        android:gravity="center"
+        android:textIsSelectable="false"
+        android:textSize="25dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_margin="15dp"
+        android:layout_weight="0.03"/>
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/gView"
+        android:layout_gravity="center_horizontal"
+        android:layout_margin="0dp"
+        android:layout_weight=".5"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"/>
+
+    <RatingBar
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/gRating"
+        android:layout_gravity="center_horizontal"
+        android:clickable="false"
+        android:visibility="visible"/>
+
+    <TextView
+        android:layout_width="177dp"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:id="@+id/gAName"
+        android:layout_gravity="center_horizontal"
+        android:layout_weight="0.06"
+        android:gravity="center"
+        android:enabled="false"
+        android:editable="false"
+        android:layout_marginBottom="20dp"/>
+
+    </LinearLayout>
+</ScrollView>

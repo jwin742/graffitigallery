@@ -1,39 +1,84 @@
 package com.hackgt.graffitiGallery;
 
 import android.location.Location;
-import org.apache.http.NameValuePair;
-import org.apache.http.message.BasicNameValuePair;
+import com.microsoft.azure.storage.table.DynamicTableEntity;
 
 import java.io.File;
-import java.util.*;
+import java.util.Date;
 
 /**
  * Created by Joshua on 9/20/2014.
  */
-public class Graffiti {
+public class Graffiti extends DynamicTableEntity {
 
+    private String id;
     private String name;
     private String artistName;
-    private HashSet<String> tags;
     private float rating;
-    private Location gLocation;
-    private File photo;
-    private Date dayMade;
+    private double latitude;
+    private double longitude;
+    private boolean Deleted;
+    private String photoLoc;
+    private double altitude;
 
-    public Graffiti(String name, String artistName, HashSet<String> tags, float rating, Location gLocation, String photoLoc) {
+
+    public Graffiti(String name, String artistName, float rating, Location gLocation, String photoLoc) {
         if (artistName == null) {
             this.artistName = "UNKNOWN";
         }
         else {
             this.artistName = artistName;
         }
+        this.id = String.valueOf(gLocation.hashCode());
         this.name = name;
-        this.tags = tags;
         this.rating = rating;
-        this.gLocation = gLocation;
-        this.photo = new File(photoLoc);
-        this.dayMade = new Date();
+        this.latitude = gLocation.getLatitude();
+        this.longitude = gLocation.getLongitude();
+        this.altitude = gLocation.getAltitude();
+        this.photoLoc = photoLoc;
+        this.Deleted = true;
     }
+
+    public void setRating(float rating) {
+        this.rating = rating;
+    }
+
+    public double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(double latitude) {
+        this.latitude = latitude;
+    }
+
+    public double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(double longitude) {
+        this.longitude = longitude;
+    }
+
+    public boolean isUp() {
+        return Deleted;
+    }
+
+    public void setUp(boolean isUp) {
+        this.Deleted = isUp;
+    }
+
+    public String getPhotoLoc() {
+        return photoLoc;
+    }
+
+    public double getAltitude() {
+        return altitude;
+    }
+
+    public void setAltitude(double altitude) {
+        this.altitude = altitude;
+    }
+
 
     public String getName() {
         return name;
@@ -51,14 +96,6 @@ public class Graffiti {
         this.artistName = artistName;
     }
 
-    public HashSet<String> getTags() {
-        return tags;
-    }
-
-    public void addTags(HashSet<String> tags) {
-        this.tags.addAll(tags);
-    }
-
     public float getRating() {
         return rating;
     }
@@ -68,15 +105,23 @@ public class Graffiti {
     }
 
     public Location getgLocation() {
-        return gLocation;
+        Location location = new Location("android");
+        location.setLongitude(longitude);
+        location.setLatitude(latitude);
+        location.setAltitude(altitude);
+        return location;
     }
 
     public File getPhoto() {
-        return photo;
+        return new File(photoLoc);
     }
 
     public Date getDayMade() {
-        return dayMade;
+        return timeStamp;
+    }
+
+    public void setPhotoLoc(String photoLoc) {
+        this.photoLoc = photoLoc;
     }
 
     @Override
@@ -84,24 +129,16 @@ public class Graffiti {
         return "Graffiti{" +
                 "name='" + name + '\'' +
                 ", artistName='" + artistName + '\'' +
-                ", tags=" + tags +
-                ", DateMade=" + dayMade.toString() +
                 ", rating=" + rating +
-                ", gLocation=" + gLocation +
-                ", photo=" + photo +
+                ", latitude=" + latitude +
+                ", longitude=" + longitude +
+                ", isUp=" + Deleted +
+                ", photoLoc='" + photoLoc + '\'' +
+                ", altitude=" + altitude +
                 '}';
     }
 
-    public List<NameValuePair> generateNameValuePairs() {
-        List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
-        nameValuePairs.add(new BasicNameValuePair("name", name));
-        nameValuePairs.add(new BasicNameValuePair("artist_name", artistName));
-        nameValuePairs.add(new BasicNameValuePair("date_made", dayMade.toString()));
-        nameValuePairs.add(new BasicNameValuePair("rating", String.valueOf(rating)));
-        nameValuePairs.add(new BasicNameValuePair("lat", String.valueOf(gLocation.getLatitude())));
-        nameValuePairs.add(new BasicNameValuePair("long", String.valueOf(gLocation.getLongitude())));
-
-        return nameValuePairs;
+    public String getId() {
+        return id;
     }
-
 }

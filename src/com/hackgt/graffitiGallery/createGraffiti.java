@@ -10,25 +10,23 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RatingBar;
+import android.widget.Toast;
+import com.microsoft.azure.storage.CloudStorageAccount;
+import com.microsoft.azure.storage.StorageException;
+import com.microsoft.azure.storage.blob.CloudBlobClient;
+import com.microsoft.azure.storage.blob.CloudBlobContainer;
+import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
 import com.microsoft.windowsazure.mobileservices.MobileServiceTable;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.entity.FileEntity;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicHeader;
-import org.apache.http.message.BasicNameValuePair;
+import com.microsoft.windowsazure.mobileservices.ServiceFilterResponse;
+import com.microsoft.windowsazure.mobileservices.TableOperationCallback;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.net.URISyntaxException;
+import java.security.InvalidKeyException;
 
 /**
  * Created by Joshua on 9/20/2014.
@@ -38,14 +36,12 @@ public class createGraffiti extends Activity {
     private Location gLocation;
     private String imgLoc;
     private MobileServiceClient mClient;
-    private MobileServiceTable<Graffiti> mGraffitiTable;
     public static final String storageConnectionString =
             "DefaultEndpointsProtocol=https;"
-                    + "AccountName=graffitigaller;"
-                    + "AccountKey= apCqsRis2BZT/5Go+lEhJRrSuMQ3bTPI48nkwtRs/NIVFGrZjnK1LOAx96FaDa9YYORnZpDDsJHezKB19sJK7A==";
-    private CloudStorageAccout account;
+                    + "AccountName=graffitigallery;"
+                    + "AccountKey=apCqsRis2BZT/5Go+lEhJRrSuMQ3bTPI48nkwtRs/NIVFGrZjnK1LOAx96FaDa9YYORnZpDDsJHezKB19sJK7A==";
 
-    @Override
+
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.newgraffiti);
@@ -58,17 +54,16 @@ public class createGraffiti extends Activity {
         ImageView preview = (ImageView) findViewById(R.id.imgPreview);
         imgLoc = pictureBundle.getString(mainScreen.SRC_MESSAGE);
         preview.setImageURI(Uri.parse(imgLoc));
-
         try {
             mClient = new MobileServiceClient(
                     "https://graffiti-gallery-service.azure-mobile.net/",
                     "wOUyOPzaDgnNKFOtQPoWDAQxrVEGoO76",
                     this
             );
-            mGraffitiTable = mClient.getTable(Graffiti.class);
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
+
 
     }
 
@@ -76,15 +71,10 @@ public class createGraffiti extends Activity {
         EditText aName = (EditText) findViewById(R.id.name);
         EditText aArtist = (EditText) findViewById(R.id.artistName);
         RatingBar rate = (RatingBar) findViewById(R.id.gRating);
-        EditText tags = (EditText) findViewById(R.id.gTags);
 
-        String[] arr = tags.getText().toString().split("/s");
-        HashSet<String> tagSet = new HashSet<>();
-        Collections.addAll(tagSet, arr);
         Graffiti addedGraffiti =
                 new Graffiti(aName.getText().toString(),
                         aArtist.getText().toString(),
-                        tagSet,
                         rate.getRating(),
                         gLocation,
                         imgLoc);
@@ -98,91 +88,53 @@ public class createGraffiti extends Activity {
 
         @Override
         protected String doInBackground(Graffiti... params) {
-            //ProgressBar progressBar = (ProgressBar) findViewById(R.id.networkProg);
-            //progressBar.setVisibility(View.VISIBLE);
-
-            mGraffitiTable.insert(params[0], (entity, exception, response) -> {
-                if (exception == null) {
-                    if (!entity.isComplete()) {
-                        mAdapter.add(entity);
-                    }
-                } else {
-                    createAndShowDialog(exception, "Error");
-                }
-            });
-
+            File pFile = new File(imgLoc);
+            String fName = pFile.getName();
+            Graffiti graffiti = params[0];
+            graffiti.setPhotoLoc(fName);
+            CloudStorageAccount account;
+            MobileServiceTable<Graffiti> table = mClient.getTable(Graffiti.class);
             try {
-                storeGraffiti(params[0]);
-            } catch (ClientProtocolException e) {
+                account = CloudStorageAccount.parse(storageConnectionString);
+                CloudBlobClient serviceClient = account.createCloudBlobClient();
+                CloudBlobContainer container = serviceClient.getContainerReference("graffiti-photos");
+                CloudBlockBlob blob = container.getBlockBlobReference(fName);
+                blob.upload(new java.io.FileInputStream(pFile), pFile.length());
+
+                table.insert(graffiti,new TableOperationCallback<Graffiti>() {
+                    @Override
+                    public void onCompleted(Graffiti graffiti, Exception e, ServiceFilterResponse serviceFilterResponse) {
+                        if (e == null) {
+                            System.out.println(graffiti.toString());
+                        }
+                        else {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+
+
+            } catch (URISyntaxException e) {
                 e.printStackTrace();
-                return e.getMessage();
-            } catch (UnsupportedEncodingException e) {
+            } catch (StorageException e) {
                 e.printStackTrace();
-                return e.getMessage();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
-                return e.getMessage();
+            } catch (InvalidKeyException e) {
+                e.printStackTrace();
             }
+
             return "Great Success!";
         }
 
         @Override
         protected void onPostExecute(String result) {
-            //ProgressBar progressBar = (ProgressBar) findViewById(R.id.networkProg);
-            //progressBar.setVisibility(View.INVISIBLE);
-            //CharSequence sequence = result.subSequence(0, result.length());
-            //Toast.makeText(getApplicationContext() ,sequence, Toast.LENGTH_SHORT).show();
-            //System.out.println(result);
+            Toast.makeText(getApplicationContext(), "Graffiti Added!", Toast.LENGTH_SHORT).show();
+            finish();
         }
 
-        private void storeGraffiti(Graffiti graffiti) throws IOException {
-            String requestURI = "https://graffitigallery.table.core.windows.net/graffiti";
-            String photoURL = getPhotoURL();
-            HttpClient httpClient = new DefaultHttpClient();
-            HttpPost httpPost = new HttpPost(requestURI);
-            List<NameValuePair> valuePairs = graffiti.generateNameValuePairs();
-            valuePairs.add(new BasicNameValuePair("photo_url", photoURL));
-
-
-            httpPost.setEntity(new UrlEncodedFormEntity(valuePairs));
-            httpClient.execute(httpPost);
-        }
-
-        /**
-         * this also puts the photo in the blob
-         * @return the URL of the photo
-         */
-        private String getPhotoURL() throws IOException{
-            File pFile = new File(imgLoc);
-            String fName = pFile.getName();
-
-            String putRequest = "https://graffitigallery.blob.core.windows.net/graffiti-photos/" + fName;
-
-            HttpClient httpClient = new DefaultHttpClient();
-            HttpPut httpPut = new HttpPut(putRequest);
-            Date now = new Date();
-            SimpleDateFormat utcFormat = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss z");
-            utcFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-
-            SimpleDateFormat versionformat = new SimpleDateFormat("yyyy-MM-dd");
-
-
-            httpPut.addHeader(new BasicHeader("Authorization", "SharedKey " + "graffitigallery:" + "apCqsRis2BZT/5Go+lEhJRrSuMQ3bTPI48nkwtRs/NIVFGrZjnK1LOAx96FaDa9YYORnZpDDsJHezKB19sJK7A=="));
-            httpPut.addHeader(new BasicHeader("x-ms-version", now.toString()));
-            httpPut.addHeader(new BasicHeader("x-ms-date", utcFormat.format(now)));
-            httpPut.addHeader(new BasicHeader("Content-Length", String.valueOf(pFile.getTotalSpace())));
-            httpPut.addHeader(new BasicHeader("x-ms-blob-type", "BlockBlob"));
-
-            httpPut.setEntity(new FileEntity(pFile,"image/jpeg"));
-            System.out.println(httpPut.toString());
-            try {
-                httpClient.execute(httpPut);
-            } catch (Exception e){
-                e.printStackTrace();
-            }
-
-            return putRequest;
-        }
 
     }
 

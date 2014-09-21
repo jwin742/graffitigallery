@@ -16,12 +16,17 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.location.LocationClient;
 import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
+import com.microsoft.windowsazure.mobileservices.MobileServiceTable;
+import com.microsoft.windowsazure.mobileservices.ServiceFilterResponse;
+import com.microsoft.windowsazure.mobileservices.TableQueryCallback;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
+import java.util.Random;
 
 public class mainScreen extends Activity implements GooglePlayServicesClient.ConnectionCallbacks,
         GooglePlayServicesClient.OnConnectionFailedListener{
@@ -60,6 +65,20 @@ public class mainScreen extends Activity implements GooglePlayServicesClient.Con
             e.printStackTrace();
         }
 
+    }
+
+    public void randomizer(View view) {
+        final Random random = new Random();
+        final MobileServiceTable<Graffiti> serviceTable = mClient.getTable(Graffiti.class);
+        serviceTable.select("Id").execute(new TableQueryCallback<Graffiti>() {
+            @Override
+            public void onCompleted(List<Graffiti> graffitis, int i, Exception e, ServiceFilterResponse serviceFilterResponse) {
+                Intent intent = new Intent(getApplicationContext(), graffitiView.class);
+                String randId = graffitis.get(random.nextInt(graffitis.size())).getId();
+                intent.putExtra("RANDOM_GRAFFITI_ID", randId);
+                startActivity(intent);
+            }
+        });
     }
 
     public void takePicture(View view) {

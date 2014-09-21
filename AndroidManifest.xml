@@ -8,6 +8,7 @@
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-sdk android:minSdkVersion="19" android:targetSdkVersion="19"/>
     <uses-feature android:name="android.hardware.camera"
                   android:required="true">
@@ -31,9 +32,17 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.hackgt.graffiti.mainScreen"/>
             </activity>
+        <activity android:name=".graffitiView"
+            android:parentActivityName=".mainScreen">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.hackgt.graffiti.mainScreen"/>
+        </activity>
+
+        <meta-data android:name="com.google.android.v2.API_KEY"
+                   android:value="AIzaSyDJ1eQoZ7D-WF-vNI0hRxrgD4UhK_wC1A4" />
         <meta-data android:name="com.google.android.gms.version"
                    android:value="@integer/google_play_services_version" />
-        <meta-data android:name="com.google.android.v2.API_KEY"
-                   android:value="AIzaSyAmk8dRNTLdGO8pc4tf8hRUm61_scFpXCc" />
+
     </application>
 </manifest>

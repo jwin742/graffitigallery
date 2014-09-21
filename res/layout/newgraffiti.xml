@@ -55,21 +55,6 @@
         android:textColor="#ff000000"
         />
 
-    <EditText
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:inputType="textMultiLine|textImeMultiLine"
-        android:ems="10"
-        android:id="@+id/gTags"
-        android:layout_gravity="center_horizontal"
-        android:layout_margin="10dp"
-        android:layout_weight="0.39"
-        android:background="#ffffffff"
-        android:hint="Tags"
-        android:gravity="top"
-        android:textColor="#ff000000"
-        />
-
     <Button
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
