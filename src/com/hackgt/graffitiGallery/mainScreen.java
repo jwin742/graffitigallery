@@ -1,24 +1,25 @@
 package com.hackgt.graffitiGallery;
 
 import android.app.Activity;
-import android.app.Dialog;
-import android.app.DialogFragment;
 import android.content.Intent;
-import android.content.IntentSender;
-import android.graphics.Bitmap;
+import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Parcel;
 import android.provider.MediaStore;
 import android.view.View;
+import android.widget.Button;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.location.LocationClient;
+import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -26,10 +27,16 @@ public class mainScreen extends Activity implements GooglePlayServicesClient.Con
         GooglePlayServicesClient.OnConnectionFailedListener{
 
     private static final int REQUEST_IMAGE_CAPTURE = 1;
+    private MobileServiceClient mClient;
     public final static String SRC_MESSAGE = "com.hackgt.graffitiGallery.IMAGE_SRC";
-    public final static String LOC_MESSAGE = "com.hackgt.graffitiGallery.LOC_PARCEL";
+    public final static String LONG_MESSAGE = "com.hackgt.graffitiGallery.LONG_DATA";
+    public final static String LAT_MESSAGE = "com.hackgt.graffitiGallery.LAT_DATA";
     private String mCurrentPhotoPath;
-    public LocationClient mLocationClient;
+    private LocationClient mLocationClient;
+    private Location loc;
+    private Button create;
+    private ProgressBar locWait;
+    private TextView textlocWait;
 
     /**
      * Called when the activity is first created.
@@ -39,9 +46,24 @@ public class mainScreen extends Activity implements GooglePlayServicesClient.Con
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         mLocationClient = new LocationClient(this, this, this);
+        create = (Button) findViewById(R.id.addG);
+        locWait = (ProgressBar) findViewById(R.id.locWaiting);
+        textlocWait = (TextView) findViewById(R.id.textWait);
+
+        try {
+            mClient = new MobileServiceClient(
+                    "https://graffiti-gallery-service.azure-mobile.net/",
+                    "wOUyOPzaDgnNKFOtQPoWDAQxrVEGoO76",
+                    this
+            );
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+
     }
 
     public void takePicture(View view) {
+
         Intent takePhoto = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (takePhoto.resolveActivity(getPackageManager()) != null) {
             // Create the File where the photo should go
@@ -84,7 +106,9 @@ public class mainScreen extends Activity implements GooglePlayServicesClient.Con
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
             Intent intent = new Intent(this, createGraffiti.class);
             intent.putExtra(SRC_MESSAGE,mCurrentPhotoPath);
-            intent.putExtra(LOC_MESSAGE, mLocationClient.getLastLocation());
+
+            intent.putExtra(LAT_MESSAGE, loc.getLatitude());
+            intent.putExtra(LONG_MESSAGE, loc.getLongitude());
             startActivity(intent);
         }
     }
@@ -119,7 +143,10 @@ public class mainScreen extends Activity implements GooglePlayServicesClient.Con
     public void onConnected(Bundle dataBundle) {
         // Display the connection status
         Toast.makeText(this, "Connected", Toast.LENGTH_SHORT).show();
-
+        loc = mLocationClient.getLastLocation();
+        locWait.setVisibility(View.INVISIBLE);
+        textlocWait.setVisibility(View.INVISIBLE);
+        create.setEnabled(true);
     }
 
     /*

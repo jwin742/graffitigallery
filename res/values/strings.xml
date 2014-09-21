@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Graffiti Gallery</string>
+    <string name="addGtext">New Graffiti!</string>
+    <string name="waittext">Getting Location...</string>
 </resources>

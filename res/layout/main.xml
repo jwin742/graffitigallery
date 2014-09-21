@@ -8,13 +8,35 @@
     <Button
         android:layout_width="fill_parent"
         android:layout_height="43dp"
-        android:text="New Graffiti!"
+        android:text="@string/addGtext"
         android:id="@+id/addG"
         android:layout_weight="0.08"
         android:textStyle="bold|italic"
         android:textSize="30dp"
         android:layout_gravity="center_horizontal"
         android:layout_margin="10dp"
-        android:onClick="takePicture"/>
+        android:onClick="takePicture"
+        android:visibility="visible"
+        android:enabled="false"/>
+
+    <ProgressBar
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/locWaiting"
+        android:layout_gravity="center_horizontal"
+        android:layout_weight="0.08"
+        android:visibility="visible"/>
+
+    <TextView
+        android:layout_width="139dp"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="@string/waittext"
+        android:id="@+id/textWait"
+        android:layout_gravity="center_horizontal"
+        android:layout_weight="0.08"
+        android:gravity="center"
+        android:visibility="visible"/>
 </LinearLayout>
 

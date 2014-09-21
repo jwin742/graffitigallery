@@ -1,10 +1,11 @@
 package com.hackgt.graffitiGallery;
 
 import android.location.Location;
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
 
 import java.io.File;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by Joshua on 9/20/2014.
@@ -14,17 +15,24 @@ public class Graffiti {
     private String name;
     private String artistName;
     private HashSet<String> tags;
-    private int rating;
+    private float rating;
     private Location gLocation;
     private File photo;
+    private Date dayMade;
 
-    public Graffiti(String name, String artistName, HashSet<String> tags, int rating, Location gLocation, String photoLoc) {
-        this.artistName = artistName;
+    public Graffiti(String name, String artistName, HashSet<String> tags, float rating, Location gLocation, String photoLoc) {
+        if (artistName == null) {
+            this.artistName = "UNKNOWN";
+        }
+        else {
+            this.artistName = artistName;
+        }
         this.name = name;
         this.tags = tags;
         this.rating = rating;
         this.gLocation = gLocation;
         this.photo = new File(photoLoc);
+        this.dayMade = new Date();
     }
 
     public String getName() {
@@ -51,7 +59,7 @@ public class Graffiti {
         this.tags.addAll(tags);
     }
 
-    public int getRating() {
+    public float getRating() {
         return rating;
     }
 
@@ -67,15 +75,33 @@ public class Graffiti {
         return photo;
     }
 
+    public Date getDayMade() {
+        return dayMade;
+    }
+
     @Override
     public String toString() {
         return "Graffiti{" +
                 "name='" + name + '\'' +
                 ", artistName='" + artistName + '\'' +
                 ", tags=" + tags +
+                ", DateMade=" + dayMade.toString() +
                 ", rating=" + rating +
                 ", gLocation=" + gLocation +
                 ", photo=" + photo +
                 '}';
     }
+
+    public List<NameValuePair> generateNameValuePairs() {
+        List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+        nameValuePairs.add(new BasicNameValuePair("name", name));
+        nameValuePairs.add(new BasicNameValuePair("artist_name", artistName));
+        nameValuePairs.add(new BasicNameValuePair("date_made", dayMade.toString()));
+        nameValuePairs.add(new BasicNameValuePair("rating", String.valueOf(rating)));
+        nameValuePairs.add(new BasicNameValuePair("lat", String.valueOf(gLocation.getLatitude())));
+        nameValuePairs.add(new BasicNameValuePair("long", String.valueOf(gLocation.getLongitude())));
+
+        return nameValuePairs;
+    }
+
 }

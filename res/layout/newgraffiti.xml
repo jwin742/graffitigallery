@@ -81,4 +81,12 @@
         android:textStyle="bold|italic"
         android:textSize="22dp"
         android:onClick="addGraffiti"/>
+
+    <ProgressBar
+        style="?android:attr/progressBarStyleSmall"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:id="@+id/networkProg"
+        android:layout_gravity="center_horizontal"
+        android:visibility="invisible"/>
 </LinearLayout>
